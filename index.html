@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HBO Max International IRR Form — Privacy Center</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-main">
+      <div class="header-inner">
+        <div class="header-brand">
+          <a href="#" class="brand" aria-label="HBO Max">
+            <img
+              src="assets/hbo-max-logo.png"
+              alt="HBO Max"
+              class="brand-logo"
+              width="72"
+              height="44"
+            >
+          </a>
+          <span class="header-divider" aria-hidden="true"></span>
+          <span class="header-title">INTERNATIONAL PRIVACY CENTER</span>
+        </div>
+        <nav class="header-nav" aria-label="Privacy center navigation">
+          <a href="#rights">Your Privacy Rights</a>
+          <a href="#faq">Frequently Asked Questions</a>
+          <a href="#policy">Privacy Policy</a>
+          <a href="#terms">Terms of Use</a>
+        </nav>
+      </div>
+    </div>
+    <div class="header-secondary">
+      <div class="header-secondary-inner">
+        <label for="header-language">View in:</label>
+        <select id="header-language" class="header-select" aria-label="Page language"></select>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="form-card">
+      <section class="intro-section">
+        <h1>We care about your privacy</h1>
+        <p>
+          Depending on the country where you are based, you may request to exercise certain rights
+          available under applicable laws.
+        </p>
+        <p>So that we can best address your choices, please review the following information:</p>
+
+        <p>
+          <strong>Want to opt-out of marketing emails?</strong>
+          Please see
+          <a href="https://help.hbomax.com/privacy" target="_blank" rel="noopener noreferrer">help.hbomax.com/privacy</a>.
+        </p>
+
+        <p><strong>Have an active subscription?</strong></p>
+        <p>
+          If you have an active HBO Max subscription, and want to submit a deletion request, your account
+          will remain active so you can still access HBO Max. We will not delete personal data that is
+          necessary to provide you with access to HBO Max or to maintain your account.
+        </p>
+        <p>
+          If you have an active subscription and want to both cancel and delete personal data associated
+          with your account, please see
+          <a href="https://help.hbomax.com/cancel" target="_blank" rel="noopener noreferrer">help.hbomax.com/cancel</a>.
+        </p>
+
+        <p><strong>To proceed with submitting your privacy request:</strong></p>
+        <p>
+          Please provide the following information so that we may process your request to access or delete
+          your personal information. You will be required to verify your email address as part of the request.
+        </p>
+        <p>
+          To exercise other data subject rights that are available to you under the specific laws of your
+          country, please email
+          <a href="mailto:wbdprivacy@wbd.com">wbdprivacy@wbd.com</a>,
+          specifying the data subject request type and providing the information requested on this form.
+          Please note some of the data subject rights might not be available in your country or may not be
+          applicable in certain scenarios.
+        </p>
+
+        <p>
+          <strong>Did you create your HBO Max account using a mobile number?</strong>
+          If so,
+          <a href="#" class="mobile-form-link">please use a separate form intended for people who created a HBO Max account using a mobile number.</a>
+        </p>
+      </section>
+
+      <section class="request-section">
+        <h2>Request Subject Information</h2>
+        <p class="section-note">These fields pertain to the person you are making this request on behalf of.</p>
+
+        <form id="irr-form" novalidate>
+          <div class="field-group">
+            <label for="country"><span class="required" aria-hidden="true">*</span>Country</label>
+            <div class="select-wrap">
+              <select id="country" name="country" required>
+                <option value="">Select a country</option>
+              </select>
+            </div>
+            <span class="field-error" id="country-error" role="alert"></span>
+          </div>
+
+          <fieldset class="field-group request-types">
+            <legend><span class="required" aria-hidden="true">*</span>Select Request Type</legend>
+            <div class="toggle-group" role="group" aria-label="Request types">
+              <button type="button" class="toggle-btn" data-type="access" aria-pressed="false">Access</button>
+              <button type="button" class="toggle-btn" data-type="delete" aria-pressed="false">Delete</button>
+            </div>
+            <span class="field-error" id="request-type-error" role="alert"></span>
+          </fieldset>
+
+          <div class="field-group">
+            <label for="first-name"><span class="required" aria-hidden="true">*</span>First Name</label>
+            <input type="text" id="first-name" name="firstName" required autocomplete="given-name">
+            <span class="field-error" id="first-name-error" role="alert"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="last-name"><span class="required" aria-hidden="true">*</span>Last Name</label>
+            <input type="text" id="last-name" name="lastName" required autocomplete="family-name">
+            <span class="field-error" id="last-name-error" role="alert"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="email"><span class="required" aria-hidden="true">*</span>Email</label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+            <span class="field-error" id="email-error" role="alert"></span>
+          </div>
+
+          <div class="form-actions">
+            <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
+            <button type="submit" class="submit-btn">Submit</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>HBO Max International IRR Form — Privacy Center Mockup</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
