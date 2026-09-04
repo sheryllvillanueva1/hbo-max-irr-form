@@ -6,8 +6,87 @@
   const headerLanguageSelect = document.getElementById('header-language');
   const toggleButtons = document.querySelectorAll('.toggle-btn');
   const formStatus = document.getElementById('form-status');
+  const mobileAccountRadios = document.querySelectorAll('input[name="mobile-account"]');
+  const mobileNumberField = document.getElementById('mobile-number-field');
+  const mobileNumberInput = document.getElementById('mobile-number');
+  const phoneInputWrap = document.getElementById('phone-input-wrap');
+  const phonePrefix = document.getElementById('phone-prefix');
 
   let selectedType = null;
+
+  const COUNTRY_DIAL_CODES = {
+    US: '+1',
+    CA: '+1',
+    GB: '+44',
+    AU: '+61',
+    DE: '+49',
+    FR: '+33',
+    ES: '+34',
+    IT: '+39',
+    MX: '+52',
+    BR: '+55',
+    IN: '+91',
+    JP: '+81',
+    CN: '+86',
+    HK: '+852',
+    SG: '+65',
+    NZ: '+64',
+    IE: '+353',
+    NL: '+31',
+    BE: '+32',
+    CH: '+41',
+    SE: '+46',
+    NO: '+47',
+    DK: '+45',
+    FI: '+358',
+    PL: '+48',
+    PT: '+351',
+    AT: '+43',
+    PH: '+63',
+    TH: '+66',
+    VN: '+84',
+    KR: '+82',
+    TW: '+886',
+    MY: '+60',
+    ID: '+62',
+    AE: '+971',
+    SA: '+966',
+    ZA: '+27',
+    AR: '+54',
+    CL: '+56',
+    CO: '+57',
+    PE: '+51',
+  };
+
+  function getDialCodeForCountry(countryCode) {
+    return COUNTRY_DIAL_CODES[countryCode] || '+1';
+  }
+
+  function updatePhonePrefix() {
+    phonePrefix.textContent = getDialCodeForCountry(countrySelect.value);
+  }
+
+  function getMobileAccountValue() {
+    const selected = document.querySelector('input[name="mobile-account"]:checked');
+    return selected ? selected.value : null;
+  }
+
+  function updateMobileNumberField() {
+    const useMobileAccount = getMobileAccountValue() === 'yes';
+    mobileNumberField.hidden = !useMobileAccount;
+
+    if (!useMobileAccount) {
+      mobileNumberInput.value = '';
+      mobileNumberInput.classList.remove('is-invalid');
+      phoneInputWrap.classList.remove('is-invalid');
+      document.getElementById('mobile-number-error').textContent = '';
+    }
+  }
+
+  function isValidPhone(value) {
+    const digits = value.replace(/\D/g, '');
+    return digits.length >= 7 && digits.length <= 15;
+  }
 
   const COUNTRIES = [
     { code: 'AL', name: 'Albania', region: 'EMEA' },
@@ -268,12 +347,16 @@
     const field = document.getElementById(fieldId);
     const errorEl = document.getElementById(fieldId + '-error');
     if (field) field.classList.add('is-invalid');
+    if (fieldId === 'mobile-number' && phoneInputWrap) {
+      phoneInputWrap.classList.toggle('is-invalid', !!message);
+    }
     if (errorEl) errorEl.textContent = message;
     return !!message;
   }
 
   function clearAllErrors() {
     form.querySelectorAll('.is-invalid').forEach((el) => el.classList.remove('is-invalid'));
+    phoneInputWrap.classList.remove('is-invalid');
     form.querySelectorAll('.field-error').forEach((el) => (el.textContent = ''));
     formStatus.textContent = '';
     formStatus.className = 'form-status';
@@ -314,6 +397,22 @@
       valid = !setError('email', 'Please enter a valid email address.');
     }
 
+    const mobileAccount = getMobileAccountValue();
+    if (!mobileAccount) {
+      const err = document.getElementById('mobile-account-error');
+      if (err) err.textContent = 'Please select Yes or No.';
+      valid = false;
+    }
+
+    if (mobileAccount === 'yes') {
+      const mobileNumber = mobileNumberInput.value.trim();
+      if (!mobileNumber) {
+        valid = !setError('mobile-number', 'Mobile number is required.');
+      } else if (!isValidPhone(mobileNumber)) {
+        valid = !setError('mobile-number', 'Please enter a valid mobile number.');
+      }
+    }
+
     return valid;
   }
 
@@ -324,6 +423,9 @@
       firstName: document.getElementById('first-name').value.trim(),
       lastName: document.getElementById('last-name').value.trim(),
       email: document.getElementById('email').value.trim(),
+      usedMobileAccount: getMobileAccountValue(),
+      mobileCountryCode: getMobileAccountValue() === 'yes' ? phonePrefix.textContent : null,
+      mobileNumber: getMobileAccountValue() === 'yes' ? mobileNumberInput.value.trim() : null,
     };
   }
 
@@ -335,18 +437,33 @@
     });
   });
 
-  countrySelect.addEventListener('change', updateHeaderLanguages);
+  countrySelect.addEventListener('change', () => {
+    updateHeaderLanguages();
+    updatePhonePrefix();
+  });
+
+  mobileAccountRadios.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      document.getElementById('mobile-account-error').textContent = '';
+      updateMobileNumberField();
+    });
+  });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!validateForm()) {
       formStatus.textContent = 'Please correct the errors above before submitting.';
       formStatus.className = 'form-status error';
-      const firstInvalid = form.querySelector('.is-invalid, .field-error:not(:empty)');
-      if (firstInvalid) {
-        const field = firstInvalid.closest('.field-group');
-        if (field) field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      let scrollTarget = countrySelect.classList.contains('is-invalid')
+        ? countrySelect.closest('.header-control')
+        : form.querySelector('.is-invalid');
+
+      if (!scrollTarget) {
+        const formError = form.querySelector('.field-error:not(:empty)');
+        if (formError) scrollTarget = formError.closest('.field-group');
       }
+
+      if (scrollTarget) scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -360,16 +477,19 @@
     selectedType = null;
     updateRequestTypeButtons();
     updateHeaderLanguages();
+    updateMobileNumberField();
   });
 
   form.querySelectorAll('input, select, textarea').forEach((el) => {
     el.addEventListener('input', () => {
       el.classList.remove('is-invalid');
+      if (el.id === 'mobile-number') phoneInputWrap.classList.remove('is-invalid');
       const errorEl = document.getElementById(el.id + '-error');
       if (errorEl) errorEl.textContent = '';
     });
     el.addEventListener('change', () => {
       el.classList.remove('is-invalid');
+      if (el.id === 'mobile-number') phoneInputWrap.classList.remove('is-invalid');
       const errorEl = document.getElementById(el.id + '-error');
       if (errorEl) errorEl.textContent = '';
     });
@@ -378,4 +498,6 @@
   updateRequestTypeButtons();
   populateCountryDropdown();
   updateHeaderLanguages();
+  updatePhonePrefix();
+  updateMobileNumberField();
 })();
