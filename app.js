@@ -7,6 +7,7 @@
   const toggleButtons = document.querySelectorAll('.toggle-btn');
   const formStatus = document.getElementById('form-status');
   const mobileAccountRadios = document.querySelectorAll('input[name="mobile-account"]');
+  const mobileAccountGroup = document.getElementById('mobile-account-group');
   const mobileNumberField = document.getElementById('mobile-number-field');
   const mobileNumberInput = document.getElementById('mobile-number');
   const phoneInputWrap = document.getElementById('phone-input-wrap');
@@ -66,13 +67,42 @@
     phonePrefix.textContent = getDialCodeForCountry(countrySelect.value);
   }
 
+  function isApacCountry(countryCode) {
+    return getRegionForCountry(countryCode || countrySelect.value) === 'APAC';
+  }
+
+  function resetMobileAccountFields() {
+    mobileAccountRadios.forEach((radio) => {
+      radio.checked = false;
+    });
+    mobileNumberInput.value = '';
+    mobileNumberInput.classList.remove('is-invalid');
+    phoneInputWrap.classList.remove('is-invalid');
+    document.getElementById('mobile-account-error').textContent = '';
+    document.getElementById('mobile-number-error').textContent = '';
+  }
+
+  function updateMobileAccountVisibility() {
+    const showApacFields = isApacCountry();
+
+    mobileAccountGroup.hidden = !showApacFields;
+
+    if (!showApacFields) {
+      resetMobileAccountFields();
+      mobileNumberField.hidden = true;
+      return;
+    }
+
+    updateMobileNumberField();
+  }
+
   function getMobileAccountValue() {
     const selected = document.querySelector('input[name="mobile-account"]:checked');
     return selected ? selected.value : null;
   }
 
   function updateMobileNumberField() {
-    const useMobileAccount = getMobileAccountValue() === 'yes';
+    const useMobileAccount = isApacCountry() && getMobileAccountValue() === 'yes';
     mobileNumberField.hidden = !useMobileAccount;
 
     if (!useMobileAccount) {
@@ -398,18 +428,20 @@
     }
 
     const mobileAccount = getMobileAccountValue();
-    if (!mobileAccount) {
-      const err = document.getElementById('mobile-account-error');
-      if (err) err.textContent = 'Please select Yes or No.';
-      valid = false;
-    }
+    if (isApacCountry()) {
+      if (!mobileAccount) {
+        const err = document.getElementById('mobile-account-error');
+        if (err) err.textContent = 'Please select Yes or No.';
+        valid = false;
+      }
 
-    if (mobileAccount === 'yes') {
-      const mobileNumber = mobileNumberInput.value.trim();
-      if (!mobileNumber) {
-        valid = !setError('mobile-number', 'Mobile number is required.');
-      } else if (!isValidPhone(mobileNumber)) {
-        valid = !setError('mobile-number', 'Please enter a valid mobile number.');
+      if (mobileAccount === 'yes') {
+        const mobileNumber = mobileNumberInput.value.trim();
+        if (!mobileNumber) {
+          valid = !setError('mobile-number', 'Mobile number is required.');
+        } else if (!isValidPhone(mobileNumber)) {
+          valid = !setError('mobile-number', 'Please enter a valid mobile number.');
+        }
       }
     }
 
@@ -423,9 +455,9 @@
       firstName: document.getElementById('first-name').value.trim(),
       lastName: document.getElementById('last-name').value.trim(),
       email: document.getElementById('email').value.trim(),
-      usedMobileAccount: getMobileAccountValue(),
-      mobileCountryCode: getMobileAccountValue() === 'yes' ? phonePrefix.textContent : null,
-      mobileNumber: getMobileAccountValue() === 'yes' ? mobileNumberInput.value.trim() : null,
+      usedMobileAccount: isApacCountry() ? getMobileAccountValue() : null,
+      mobileCountryCode: isApacCountry() && getMobileAccountValue() === 'yes' ? phonePrefix.textContent : null,
+      mobileNumber: isApacCountry() && getMobileAccountValue() === 'yes' ? mobileNumberInput.value.trim() : null,
     };
   }
 
@@ -440,6 +472,7 @@
   countrySelect.addEventListener('change', () => {
     updateHeaderLanguages();
     updatePhonePrefix();
+    updateMobileAccountVisibility();
   });
 
   mobileAccountRadios.forEach((radio) => {
@@ -477,7 +510,7 @@
     selectedType = null;
     updateRequestTypeButtons();
     updateHeaderLanguages();
-    updateMobileNumberField();
+    updateMobileAccountVisibility();
   });
 
   form.querySelectorAll('input, select, textarea').forEach((el) => {
@@ -499,5 +532,5 @@
   populateCountryDropdown();
   updateHeaderLanguages();
   updatePhonePrefix();
-  updateMobileNumberField();
+  updateMobileAccountVisibility();
 })();
